@@ -127,3 +127,20 @@ render/                render.js (puppeteer-core + ffmpeg), build_all.js
 sound/                 make_sound.py
 review/                review stills / contact sheets
 ```
+
+## Embossed logo on an existing video (`emboss/`)
+
+Presses the logo into the Moon in a supplied clip. It never redraws the logo: it uses the PNG's alpha as a height map.
+
+1. `track_moon.py` finds the Moon disc in every frame. It keeps bright, low-saturation pixels (the pink hands are excluded), fits a robust circle to the disc edge, and smooths the result over time.
+2. `emboss_video.py` wraps the logo onto that sphere so it bends toward the limb. It shades the logo as raised relief: a lit bevel, a shaded bevel and a soft contact shadow. The shading is multiplicative, so the emboss follows the clip's own fade-in and lighting. The original audio is copied through.
+
+```bash
+python3 emboss/track_moon.py IN.mp4 emboss/track.json
+```
+
+```bash
+python3 emboss/emboss_video.py IN.mp4 emboss/track.json out/emboss/out.mp4 --size 0.95 --depth 1.0
+```
+
+`--size` is the logo ink width in Moon radii. `--depth` is the relief strength. `--light x,y` is the screen-space light direction.
