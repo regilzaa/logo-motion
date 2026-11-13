@@ -53,7 +53,16 @@ async function boot() {
   const E = T.events;
   const tmpV = new THREE.Vector3();
 
-  function state(t, cam) {
+  const BEAM_K = 6;
+  function beamEnds(t) {
+    const head = easeIn(prog(t, E.beam_travel), 1.4);
+    let B;
+    if (t < E.beam_travel[1]) B = W.CITY_POS.clone().lerp(W.IMPACT_POS, head);
+    else { const xy = trace.aim(t); B = mapper.surface(xy[0], xy[1], W.MOON_C, new THREE.Vector3()); }
+    const cut = easeIn(prog(t, [E.beam_cutoff, E.beam_cutoff + 0.12]), 2);
+    return { A: W.CITY_POS.clone().lerp(B, cut), B };
+  }
+  function state(t, cam, subDt = 0) {
     const tanH = Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
     const s = { t, laserColor, px: Ht / 1080, projScale: Ht / (2 * tanH), pixAngle: (2 * tanH) / Ht, cityPos: W.CITY_POS, impactPos: W.IMPACT_POS, impactNormal };
     // OPEN: city light pulses
@@ -68,16 +77,14 @@ async function boot() {
     // FIRE
     s.muzzleI = pulse(t, E.fire, 0.012, 0.09) * 5.0;
     s.flareI = pulse(t, E.flare_kick, 0.01, 0.14) * 1.2;
-    const fh = prog(t, E.beam_travel), head = easeIn(fh, 1.4);
-    const aimXY = trace.aim(t);
-    const aimW = mapper.surface(aimXY[0], aimXY[1], tmpV.copy(W.MOON_C).addScaledVector(W.LOGO_N, -0), new THREE.Vector3());
-    let B;
-    if (t < E.beam_travel[1]) B = W.CITY_POS.clone().lerp(W.IMPACT_POS, head);
-    else B = aimW;
-    const cut = easeIn(prog(t, [E.beam_cutoff, E.beam_cutoff + 0.12]), 2);
-    s.beamA = W.CITY_POS.clone().lerp(B, cut); s.beamB = B;
+    const ends = beamEnds(t), B = ends.B;
+    s.beamA = ends.A; s.beamB = B;
+    // the beam sweeps fast while tracing: sample it BEAM_K times inside this sub-frame's slice of
+    // the shutter so its motion blur is a continuous smear, not strobed copies (cheap: beam only)
+    s.beamSamples = [];
+    for (let k = 0; k < BEAM_K; k++) s.beamSamples.push(beamEnds(t + ((k + 0.5) / BEAM_K - 0.5) * subDt));
     s.beamI = t < E.fire ? 0 : (t < E.beam_cutoff ? 1.0 : (1 - smooth(prog(t, [E.beam_cutoff + 0.06, E.beam_cutoff + 0.16]))));
-    s.beamW = 0.03; s.beamTipBoost = t < E.impact ? 3.0 : 0.6;
+    s.beamW = 0.018; s.beamTipBoost = t < E.impact ? 3.0 : 0.6;
     s.tipI = t < E.fire ? 0 : (t < E.impact ? 1.4 : 0.9 + 0.12 * Math.sin(t * 157)) * (t < E.beam_cutoff ? 1 : 1 - prog(t, [E.beam_cutoff, E.beam_cutoff + 0.1]));
     s.tipSize = t < E.impact ? 0.18 : 0.1;
     // IMPACT
@@ -122,7 +129,7 @@ async function boot() {
       const cam = rig.update(t);
       // sub-pixel jitter (R2 sequence): the motion-blur sub-frames double as supersampling AA
       if (N > 1) { const jx = ((0.5 + 0.7548776662 * (i + 1)) % 1) - 0.5, jy = ((0.5 + 0.5698402910 * (i + 1)) % 1) - 0.5; cam.setViewOffset(Wd, Ht, jx, jy, Wd, Ht); } else cam.clearViewOffset();
-      const s = state(t, cam);
+      const s = state(t, cam, sh / T.fps / N);
       trace.draw(t);
       stars.update(s); earth.update(s); moon.update(s); laser.update(s); logo.update(s);
       post.addSubframe(scene, over, cam, 1 / N);

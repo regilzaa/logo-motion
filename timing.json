@@ -105,19 +105,19 @@
       "path": 0,
       "name": "outer arc left",
       "start": 2.2,
-      "end": 2.75
+      "end": 2.72
     },
     {
       "path": 1,
       "name": "outer arc right",
       "start": 2.75,
-      "end": 3.2
+      "end": 3.17
     },
     {
       "path": 2,
       "name": "fragment 1",
       "start": 3.2,
-      "end": 3.3
+      "end": 3.28
     },
     {
       "path": 3,

@@ -104,10 +104,11 @@ export function makeLaser() {
   const group = new THREE.Group();
   const parts = {
     cityPulse: sprite('nodepth'), core: sprite('nodepth'), ring: sprite('ring'), muzzle: sprite('nodepth'),
-    tip: sprite('glow'), impact: sprite('glow'), beam: beam(),
+    tip: sprite('glow'), impact: sprite('glow'),
     sparks: particles(700, false), dust: particles(420, true),
   };
-  Object.values(parts).forEach((o) => group.add(o));
+  parts.beams = Array.from({ length: 6 }, () => beam());
+  Object.values(parts).forEach((o) => (Array.isArray(o) ? o.forEach((b) => group.add(b)) : group.add(o)));
 
   // deterministic particle seeds
   const R = rng(1234);
@@ -129,10 +130,12 @@ export function makeLaser() {
       set(parts.muzzle, s.cityPos, 0.6, s.muzzleI, c);
       set(parts.tip, s.beamB, s.tipSize, s.tipI, c);
       set(parts.impact, s.impactPos, 0.4, s.impactI, WHITEISH.copy(c).lerp(WHITE, 0.7));
-      const bu = parts.beam.material.uniforms;
-      bu.uA.value.copy(s.beamA); bu.uB.value.copy(s.beamB); bu.uI.value = s.beamI; bu.uW.value = s.beamW; bu.uCol.value.copy(c);
-      bu.uPix.value = s.pixAngle; bu.uTip.value = s.beamTipBoost; bu.uLen.value = Math.max(1e-3, s.beamA.distanceTo(s.beamB));
-      parts.beam.visible = s.beamI > 1e-4;
+      parts.beams.forEach((bm, k) => {
+        const e = s.beamSamples[k], bu = bm.material.uniforms;
+        bu.uA.value.copy(e.A); bu.uB.value.copy(e.B); bu.uI.value = s.beamI / parts.beams.length; bu.uW.value = s.beamW; bu.uCol.value.copy(c);
+        bu.uPix.value = s.pixAngle; bu.uTip.value = s.beamTipBoost; bu.uLen.value = Math.max(1e-3, e.A.distanceTo(e.B));
+        bm.visible = s.beamI > 1e-4;
+      });
 
       // sparks: born at the tip during the trace, ballistic, pulled back toward the Moon
       {
