@@ -1,0 +1,16 @@
+{
+  "name": "logo-motion",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node render/render.js --layout landscape --scale 0.33 --subframes 1 --out out/preview_16x9.mp4",
+    "render:16x9": "node render/render.js --layout landscape",
+    "render:9x16": "node render/render.js --layout portrait",
+    "sound": "python3 sound/make_sound.py",
+    "all": "node render/build_all.js"
+  },
+  "dependencies": {
+    "puppeteer-core": "^25.17.0",
+    "three": "^0.170.0"
+  }
+}
