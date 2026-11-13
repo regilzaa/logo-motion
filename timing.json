@@ -1,0 +1,70 @@
+{
+  "_doc": "Single source of truth for picture and sound. All times in seconds. Time = frame / fps, never wall clock.",
+  "fps": 60,
+  "frames": 300,
+  "duration": 5.0,
+  "subframes": 8,
+  "shutter": 0.5,
+  "phases": {
+    "open":    [0.00, 0.60],
+    "charge":  [0.60, 1.20],
+    "fire":    [1.20, 1.70],
+    "impact":  [1.70, 2.20],
+    "trace":   [2.20, 3.60],
+    "resolve": [3.60, 4.20],
+    "hold":    [4.20, 5.00]
+  },
+  "events": {
+    "city_pulse_start": 0.15,
+    "charge_start": 0.60,
+    "ring_contract": [0.70, 1.15],
+    "anticipation_pullback": [1.05, 1.20],
+    "fire": 1.20,
+    "flare_kick": 1.20,
+    "beam_travel": [1.20, 1.55],
+    "camera_whip": [1.20, 1.75],
+    "impact": 1.70,
+    "impact_flash": [1.70, 1.82],
+    "shockwave": [1.70, 2.20],
+    "dust_plume": [1.70, 2.40],
+    "camera_shake": [1.70, 1.75],
+    "trace_start": 2.20,
+    "trace_end": 3.60,
+    "beam_cutoff": 3.62,
+    "trace_flash": 3.72,
+    "logo_fill": [3.75, 4.15],
+    "moon_recede": [3.60, 4.40],
+    "hold_start": 4.20,
+    "push_in": [4.20, 5.00],
+    "light_sweep": [4.35, 4.85],
+    "tail_silence": 5.00
+  },
+  "trace_paths": [
+    { "path": 0, "name": "outer arc left",  "start": 2.20, "end": 2.75 },
+    { "path": 1, "name": "outer arc right", "start": 2.75, "end": 3.20 },
+    { "path": 2, "name": "fragment 1",      "start": 3.20, "end": 3.30 },
+    { "path": 3, "name": "fragment 2",      "start": 3.30, "end": 3.43 },
+    { "path": 4, "name": "centre dot",      "start": 3.45, "end": 3.60 }
+  ],
+  "beats_every_0_5s": {
+    "0.0": "city light starts pulsing (0.15)",
+    "0.5": "charge begins, ring forms (0.60)",
+    "1.0": "anticipation pull-back (1.05)",
+    "1.5": "fire 1.20 / beam reaches Moon 1.55",
+    "2.0": "impact 1.70, shockwave",
+    "2.5": "trace starts 2.20 / path 2 at 2.75",
+    "3.0": "fragments 3.20 / 3.30, dot 3.45",
+    "3.5": "last stroke closes 3.60 / flash 3.72",
+    "4.0": "fill settles 4.15 / hold 4.20",
+    "4.5": "light sweep 4.35-4.85"
+  },
+  "layout": {
+    "landscape": { "width": 1920, "height": 1080, "logo_width_frac": 0.35, "logo_center": [0.5, 0.5] },
+    "portrait":  { "width": 1080, "height": 1920, "logo_width_frac": 0.70, "logo_center": [0.5, 0.47] }
+  },
+  "colors": {
+    "laser": "#00E5FF",
+    "laser_core": "#FFFFFF",
+    "background": "#000000"
+  }
+}
